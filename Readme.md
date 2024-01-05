@@ -1,10 +1,10 @@
 # Fullstack MERN Blogging Website
 
-Fork this repo of "MERN Blogging Website" to start following the video tutorial.
+BlogEpic is a dynamic blogging platform that empowers users to publish their compelling and thought-provoking blogs. It serves as a creative space where individuals can share their unique perspectives and engage with a diverse audience.
 
-Checkout website demo - [Demo](https://youtu.be/J7BGuuuvDDk)
+<!-- Checkout website demo - [Demo](https://youtu.be/J7BGuuuvDDk) -->
 
-![Thumbnail](https://c10.patreonusercontent.com/4/patreon-media/p/post/90122909/dd5363bd03fb4a6c8fcd5d15df98e6bf/eyJ3Ijo4MjB9/1.png?token-time=1697414400&token-hash=BZ-Mzp19WnBLcCFB8LmJFDw98mpnCRGcOCt_T615miY%3D)
+<!-- ![Thumbnail](https://c10.patreonusercontent.com/4/patreon-media/p/post/90122909/dd5363bd03fb4a6c8fcd5d15df98e6bf/eyJ3Ijo4MjB9/1.png?token-time=1697414400&token-hash=BZ-Mzp19WnBLcCFB8LmJFDw98mpnCRGcOCt_T615miY%3D) -->
 
 This website features include -
 1. Modern Blog Editor using Editor JS.
