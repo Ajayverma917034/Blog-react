@@ -1,7 +1,9 @@
 import express from 'express'
+import {  googleLogin, login, register } from '../controllers/user.controller.js'
 
-const Router = express.Router()
+const userRouter = express.Router()
 
-// Router.post()
-
-export default Router
+userRouter.post('/signup', register)
+userRouter.post('/signin', login)
+userRouter.post('/google-auth', googleLogin)
+export default userRouter
