@@ -4,6 +4,12 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NzljNDUyNGRkNWI3MTVlMGNlODc0YyIsImlhdCI6MTcwNDQzOTI5Nn0.id9YIwaF-m86HLHwWFPLBx67Qts96RLRA1lEljejqPQ
 
 {
-    "email": "ajayverma@gmail.com",
-    "password": "Ajay@123"
+    "title": "title test&^*%",
+    "banner": "https//ewld",
+    "des": "jflsjflsjflsjfljsdflj ",
+    "content": {
+        "blocks" : ["1","2"]
+    },
+    "tags": ["tag1", "tag2"]
+
 }

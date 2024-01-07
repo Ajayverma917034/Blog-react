@@ -15,6 +15,8 @@ import serviceAccountKey from './react-blogging-52b70-firebase-adminsdk-8kfmz-93
 }
 import { verifyToken } from './middleware/verifyUser.js'
 import ErrorHanlder from './utils/Errorhandler.js'
+import { ErrorThrow } from './utils/error.js'
+import BlogRouter from './routes/blogRoutes.js'
 
 
 
@@ -70,19 +72,23 @@ const formatDataToSend = (user) =>{
 
 server.post('/upload-image' , async (req, res)=>{
     try{
-        const {image} = req.body;
-
-        await cloudinary.uploader.upload(image, (err, result)=>{
+        // const {image} = req.body;
+        // console.log(req.files)
+        // console.log(image)
+        console.log(req.files)
+        const {image} = req.files
+        await cloudinary.uploader.upload(image.tempFilePath, (err, result)=>{
             if(err){
-                res.status(500).json({"error": err})
+                return res.status(500).json({error: err})
             }
             else{
-                res.status(202).json({"url": result.url})
+                return res.status(202).json({"url": result.url})
             }
         })
     } 
     catch(err){
-        res.status(500).json({"error": err.message})
+        console.log(err.message)
+        res.status(500).json({error: err.message})
     }
 })
 
@@ -189,19 +195,9 @@ server.post("/google-auth", async(req, res)=>{
     })
 })
 
-server.post('/create-blog', (req, res, next) => {
-    let authorId = req.user
-    let {title, des, banner, tags, content, draft} = req.body
-    if(!content)
-        return next(new ErrorHanlder(403, 'You must proivide some content to publish your blog'))
-    if(!title.length)
-        return res.status(403).json({error: 'You must provide a title to publish a blog'})
-    if(!des.length || des>length > 200)
-        return res.status(403).json({error: 'You must provide description under 200 charactors long'})
-    if(!banner.length){
-        return res.status(403).json({error: 'You must Provide blog banner to publish it'})
-    }
-})
+server.use(BlogRouter)
+
+server.use(ErrorThrow)
 
 server.listen(PORT, ()=>{
     console.log("Listing on port ->" + PORT)
