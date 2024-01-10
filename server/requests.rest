@@ -1,15 +1,19 @@
 # POST http://localhost:3000/signin
-POST http://localhost:3000/create-blog
+# POST http://localhost:3000/create-blog
+POST http://localhost:3000/search-blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NzljNDUyNGRkNWI3MTVlMGNlODc0YyIsImlhdCI6MTcwNDQzOTI5Nn0.id9YIwaF-m86HLHwWFPLBx67Qts96RLRA1lEljejqPQ
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1NzljNDUyNGRkNWI3MTVlMGNlODc0YyIsImlhdCI6MTcwNDQzOTI5Nn0.id9YIwaF-m86HLHwWFPLBx67Qts96RLRA1lEljejqPQ
 
+# {
+#     "title": "title test&^*%",
+#     "banner": "https//ewld",
+#     "des": "jflsjflsjflsjfljsdflj ",
+#     "content": {
+#         "blocks" : ["1","2"]
+#     },
+#     "tags": ["tag1", "tag2"]
+
+# }
 {
-    "title": "title test&^*%",
-    "banner": "https//ewld",
-    "des": "jflsjflsjflsjfljsdflj ",
-    "content": {
-        "blocks" : ["1","2"]
-    },
-    "tags": ["tag1", "tag2"]
-
+    "tag": "future"
 }

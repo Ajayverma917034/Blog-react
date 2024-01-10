@@ -11,7 +11,8 @@ const PublishForm = () => {
   const charLength = 200
   const tagLimit = 10
   const navigate = useNavigate()
-  let {blog: {banner, title, tags, des}, setEditorState, setBlog,blog} = useContext(EditorContext)
+  let {blog: {banner, title, tags, des, content}, setEditorState, setBlog,blog} = useContext(EditorContext)
+  // let {userAuth: {access_token}} = useContext(UserContext)
   let {userAuth: {access_token}} = useContext(UserContext)
   const handleClose = () =>{
     setEditorState("editor")

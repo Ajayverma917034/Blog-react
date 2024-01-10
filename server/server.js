@@ -47,11 +47,8 @@ server.get('/', (req, res) =>{
 })
 server.post('/upload-image' , async (req, res)=>{
     try{
-        // const {image} = req.body;
-        // console.log(req.files)
-        // console.log(image)
+        const {image} = req.files;
         console.log(req.files)
-        const {image} = req.files
         await cloudinary.uploader.upload(image.tempFilePath, (err, result)=>{
             if(err){
                 return res.status(500).json({error: err})

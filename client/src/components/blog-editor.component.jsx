@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import logo from '../imgs/logo.png'
 import AnimationWrapper from '../common/page-animation'
 import defaultBanner from '../imgs/blog banner.png'
@@ -9,43 +9,51 @@ import { EditorContext } from '../pages/editor.pages'
 import EditorJS from '@editorjs/editorjs'
 import { tools } from './tools.component'
 import { uploadImage } from '../common/cloudinary'
+import axios from 'axios'
+import { UserContext } from '../App'
 const BlogEditor = () => {
-    // const [image, setImage] = useState(null)
-
-    let {blog, blog: {title, banner, content, tags, des}, setBlog, textEditor, setTextEditor, setEditorState} = useContext(EditorContext)
+    const navigate = useNavigate()
+    let {userAuth: {access_token}} = useContext(UserContext)
+    let blogContextData = useContext(EditorContext)
+    let {blog, blog: {title, banner, content, tags, des}, setBlog, textEditor, setTextEditor, setEditorState} = blogContextData
 
     useEffect(()=>{
-        setTextEditor (new EditorJS({
-            holderId: "textEditor",
-            data: content,
-            tools: tools,
-            placeholder: "Let's write an awesome story"
-        }))
+        if(!textEditor.isReady){
+            setTextEditor (new EditorJS({
+                holderId: "textEditor",
+                data: content,
+                tools: tools,
+                placeholder: "Let's write an awesome story"
+            }))
+        }
     },[])
-    const handleBannerUpload = (image) =>{
-            let ladingTast = toast.loading('Uploading...')
-            if(image){
-                uploadImage(image).then((url) =>{
-                    toast.dismiss(ladingTast)
-                    toast.success("Uploaded Successfully")
-                    setBlog({...blog, banner: url})
-                }).catch(err => {
-                    toast.dismiss(ladingTast)
-                    toast.error(err)
+    // const handleBannerUpload = (image) =>{
+    //     console.log(image)
+    //     if(image){
+    //         let ladingTast = toast.loading('Uploading...')
+    //         uploadImage(image).then((url) =>{
+    //             toast.dismiss(ladingTast)
+    //             toast.success("Uploaded Successfully")
+    //             setBlog({...blog, banner: url})
+    //         }).catch(err => {
+    //             toast.dismiss(ladingTast)
+    //             toast.error(err)
 
-                })
-            }
-    }
+    //         })
+    //     }
+    // }
     const handleChangeBanner = (e) =>{
-        const file = e.target.files[0];
-        if(file){
-            const reader = new FileReader()
+        if(e.target.files[0]){
+            let ladingTast = toast.loading('Uploading...')
+            uploadImage(e.target.files[0]).then((url) =>{
+                toast.dismiss(ladingTast)
+                toast.success("Uploaded Successfully")
+                setBlog({...blog, banner: url})
+            }).catch(err => {
+                toast.dismiss(ladingTast)
+                toast.error(err)
 
-            reader.onloadend = () =>{
-                // setImage(reader.result)
-                handleBannerUpload(reader.result)
-            }
-            reader.readAsDataURL(file)
+            })
         }
     }
     const handleTitleKeyDown = (e) =>{
@@ -84,6 +92,40 @@ const BlogEditor = () => {
             })
         }
     }
+    const handleSaveDraft = (e) =>{
+          if(e.target.className.includes('disable')){
+            return 
+          }
+          if(!title.length){
+            return toast.error("Write Blog Title before saving it as draft")
+          }
+      
+          let loadingToast = toast.loading("Saving Draft...")
+          e.target.classList.add('disable');
+          if(textEditor.isReady){
+            textEditor.save().then(content => {
+                let blogObj = {
+                    title, banner, des, content, tags, draft: true
+                  }
+                  axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/create-blog', blogObj, {
+                    headers: {
+                      'Authorization': `Bearer ${access_token}`
+                    }
+                  }).then(() =>{
+                    e.target.classList.remove('disable');
+                    toast.dismiss(loadingToast)
+                    toast.success("Saved successfully");
+                    setTimeout(() => {
+                      navigate('/')
+                    }, 5000);
+                  }).catch(({response}) =>{
+                    e.target.classList.remove('disable');
+                    toast.dismiss(loadingToast)
+                    return toast.error(response.data.error)
+                  })
+            })
+          }
+    }
   return (
     <>
         <nav className='navbar'>
@@ -95,7 +137,7 @@ const BlogEditor = () => {
             </p>
             <div className='flex gap-4 ml-auto'>
                 <button className='btn-dark py-2 ' onClick={handlePublishEvent}>Publish</button>
-                <button  className='btn-light py-2 '>Save Draft</button>
+                <button  className='btn-light py-2' onClick={handleSaveDraft}>Save Draft</button>
             </div>
         </nav>
         <Toaster/>

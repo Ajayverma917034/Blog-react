@@ -1,9 +1,10 @@
 import { useContext, useState } from 'react'
 import logo from '../imgs/logo.png'
-import {Link, Outlet} from 'react-router-dom'
+import {Link, Outlet, useNavigate} from 'react-router-dom'
 import { UserContext } from '../App'
 import UserNavigationPanel from './user-navigation.component'
 const Navbar = () =>{
+    const navigate = useNavigate()
     const [searchBoxVisibility, setSearchBoxVisibility] = useState(false)
     const [userNavPanel, setUserNavPanel] = useState(false)
     const {userAuth, userAuth: {access_token, profile_img}} = useContext(UserContext);
@@ -15,6 +16,12 @@ const Navbar = () =>{
             setUserNavPanel(false)
         }, 300)
     }
+    const handleChange = (e) =>{
+        let query = e.target.value;
+        if(e.keyCode === 13 && query.length){
+            navigate(`/search/${query}`)
+        }
+    }
     // console.log(userAuth)
     return (
         <>
@@ -23,7 +30,7 @@ const Navbar = () =>{
                     <img src={logo} alt="logo" className='flex-none w-10' />
                 </Link>
                 <div className={" absolute bg-white w-full left-0 top-full mt-0.5 border-b border-grey py-4 px-[5vw] md:border-0 md:block md:relative md:inset-0 md:p-0 md:w-auto md:show " + (searchBoxVisibility ? "show" : "hide")}>
-                    <input type="text" placeholder='Search' className='w-full md:w-auto bg-grey p-4 pl-6 pr-[12%] md:pr-6 rounded-full placeholder:text-dark-grey md:pl-12'/>
+                    <input type="text" placeholder='Search' className='w-full md:w-auto bg-grey p-4 pl-6 pr-[12%] md:pr-6 rounded-full placeholder:text-dark-grey md:pl-12' onKeyDown={handleChange}/>
                     
                     <i className="fi fi-rr-search absolute right-[10%] md:pointer-events-none md:left-5 top-1/2 -translate-y-1/2 text-xl text-dark-grey"></i>
 

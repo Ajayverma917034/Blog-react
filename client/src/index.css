@@ -107,7 +107,7 @@
     }
 
     .blog-title{
-        @apply text-2xl font-medium leading-7 line-clamp-3 sm:line-clamp-2;
+        @apply text-2xl font-medium leading-7 line-clamp-3 sm:line-clamp-2 text-xl;
     }
 
     .blog-index{
