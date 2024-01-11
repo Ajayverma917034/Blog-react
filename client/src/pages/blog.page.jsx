@@ -5,6 +5,8 @@ import AnimationWrapper from '../common/page-animation'
 import Loader from '../components/loader.component'
 import { getDay } from '../common/date'
 import BlogInteraction from '../components/blog-interaction.component'
+import BlogPostCard from '../components/blog-post.component'
+import BlogContent from '../components/blog-content.component'
 
 export const blogStructure = {
     title: '',
@@ -24,14 +26,17 @@ const BlogPage = () => {
     (blogStructure);
     const [similarBlog, setSimilarBlog] = useState(blogStructure)
     const [loading, setLoading] = useState(true)
+    const [isLikedByUser, setIsLikedByUser] = useState(false);
+
     let {title, content, banner, author: {personal_info: {username : author_username, fullname, profile_img}}, publishedAt} = blog
+
     const fetchBlog = () => {
         axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/get-blog', {blog_id})
         .then(({data: {blog}})=>{
             axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/search-blogs', {tag: blog.tags[0], limit: 6, eliminate_blog: blog_id})
-            .then(({data: {blog}}) =>{
-                console.log(blog)
-                setSimilarBlog(blog)
+            .then(({data: {blogs}}) =>{
+                // console.log(blogs)
+                setSimilarBlog(blogs)
             })
             .catch(err =>{
                 console.log(err)
@@ -45,13 +50,19 @@ const BlogPage = () => {
         })
     }
     useEffect(() =>{
+        resetState()
         fetchBlog()
-    }, [])
+    }, [blog_id])
+    const resetState = () =>{
+        setBlog(blogStructure)
+        setSimilarBlog(null)
+        setLoading(true)
+    }
    return (
     <AnimationWrapper>
         {
             loading ? <Loader/> :
-            <BlogContext.Provider value={{blog, setBlog}}>
+            <BlogContext.Provider value={{blog, setBlog, isLikedByUser, setIsLikedByUser}}>
                 <div className='max-w-[900px] center py-10 max-lg:px-[5vw]'>
                     <img src={banner} alt="Banner" className='aspect-video'/>
                     <div className='mt-12'>
@@ -73,14 +84,31 @@ const BlogPage = () => {
 
                     <BlogInteraction/>
 
-                    {/* blog content will go over here */}
+                    <div className='my-12 font-gelasio blog-page-content'>
+                        {
+                            content[0].blocks.map((block, i) =>{
+                                return <div className='my-4 md:my-8' key={i}>
+                                    <BlogContent block = {block}/>
+                                </div>
+                            })
+                        }
+
+                    </div>
 
                     <BlogInteraction/>
 
                     {
-                        similarBlog !== null  && similarBlog?.length ? 
+                        similarBlog !== null  && similarBlog.length ? 
                         <>
                         <h1 className='font-medium text-2xl mt-14 mb-10'>Similar Blogs</h1>
+                        {
+                            similarBlog && similarBlog.map((blog, i) =>{
+                                let {author : {personal_info}} = blog;
+                                return <AnimationWrapper key={i} transition={{duration: 1, delay: i * 0.08}}>
+                                    <BlogPostCard content={blog} author={personal_info}/>
+                                </AnimationWrapper>
+                            })
+                        }
                         </>
                         : ""
                     }
