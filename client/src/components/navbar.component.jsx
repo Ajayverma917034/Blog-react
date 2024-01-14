@@ -25,7 +25,7 @@ const Navbar = () =>{
     // console.log(userAuth)
     return (
         <>
-            <nav className="navbar">
+            <nav className="navbar z-50">
                 <Link to='/'>
                     <img src={logo} alt="logo" className='flex-none w-10' />
                 </Link>
