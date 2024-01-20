@@ -130,7 +130,6 @@ export const searchBlog = (req, res, next) => {
             .skip((page - 1) * maxLimit)
             .limit(maxLimit)
             .then((blogs) => {
-                // console.log(blogs);
                 return res.status(200).json({ blogs });
             })
             .catch((err) => {
@@ -259,10 +258,10 @@ export const isLikedByUser = (req, res) =>{
     })
 }
 
-export const AddComment = (req, res) =>{
+export const AddComment = async(req, res) =>{
     try {
         let user_id = req.user;
-        let {_id, comment, blog_author, replying_to} = req.body;
+        let {_id, comment, blog_author, replying_to, notification_id} = req.body;
         
         if(!comment.length){
             return res.status(403).json({error: "Write something to leave a comment"})
@@ -301,6 +300,13 @@ export const AddComment = (req, res) =>{
 
                 await Comment.findOneAndUpdate({_id: replying_to}, {$push: {children: commentFile._id}})
                 .then(replyingToCommentDoc =>{notificationObj.notification_for = replyingToCommentDoc.commented_by})
+
+                if(notification_id){
+                    Notification.findOneAndUpdate({_id: notification_id}, {reply: commentFile._id})
+                    .then(notification => {
+                        // console.log('Notification updated')
+                    })
+                }
             }
 
             new Notification(notificationObj).save()
@@ -376,7 +382,7 @@ const deleteCommentFun = (_id) =>{
         Notification.findOneAndDelete({comment: _id})
         .then(notification => console.log('comment notification deleted'))
 
-        Notification.findOneAndDelete({reply: _id})
+        Notification.findOneAndUpdate({reply: _id}, {$unset: {reply: 1}})
         .then(notification => console.log('reply deleted'))
 
         Blog.findOneAndUpdate({_id: comment.blog_id}, {$pull: {comments: _id}, $inc: {"activity.total_comments": -1}, "activity.total_parent_comments": comment.parent ? 0 : -1})
@@ -407,5 +413,67 @@ export const deleteComment = (req, res) =>{
         else{
             return res.status(403).json({error: 'You cannot delete this comment'})
         }
+    })
+}
+
+export const userWrittenUser = (req, res) => {
+    let user_id= req.user;
+    let {page, draft, query, deletedDocCount} = req.body;
+
+    let maxLimit = 5;
+    let skipDocs = (page-1) * maxLimit
+
+    if(deletedDocCount){
+        skipDocs -= deletedDocCount
+    }
+
+    Blog.find({author: user_id, draft, title : new RegExp(query, 'i')})
+    .skip(skipDocs)
+    .limit(maxLimit)
+    .sort({publishedAt: -1})
+    .select('title banner publishedAt blog_id activity des draft -_id')
+    .then(blogs => {
+        return res.status(200).json({blogs})
+    })
+    .catch(err => {
+        return res.status(500).json({error: err.message})
+    })
+}
+
+export const userWrittenUserCount = (req, res) => {
+    let user_id = req.user;
+    let {draft, query} = req.body;
+
+    Blog.countDocuments({author: user_id, draft, title: new RegExp(query, 'i')})
+    .then(count => {
+        return res.status(200).json({totalDocs: count})
+    })
+    .catch(err => {
+        console.log(err.message)
+        return res.status(500).json({error: err.message})
+    })
+}
+
+export const deleteBlog = (req, res) => {
+    let user_id = req.user;
+    let {blog_id} = req.body;
+
+    Blog.findOneAndDelete({blog_id})
+    .then((blog) => {
+        Notification.deleteMany({blog: blog._id})
+        .then(() => {
+            console.log('notification deleted')
+        })
+        Comment.deleteMany({blog_id: blog._id}).then(data => console.log('comment deleted'))
+
+        User.findOneAndUpdate({_id: user_id}, {$pull: {blog: blog_id}, $inc: {"account_info.total_posts": -1}})
+        .then(user => {
+            console.log('Blog deleted')
+        })
+
+        return res.status(200).json({status: 'done'})
+    })
+    .catch(err => {
+        return res.status(500).json({error: err.message})
     })
 }

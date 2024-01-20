@@ -42,7 +42,6 @@ const BlogPage = () => {
 
             axios.post(import.meta.env.VITE_SERVER_DOMAIN + '/search-blogs', {tag: blog.tags[0], limit: 6, eliminate_blog: blog_id})
             .then(({data: {blogs}}) =>{
-                // console.log(blogs)
                 setSimilarBlog(blogs)
             })
             .catch(err =>{
@@ -113,6 +112,7 @@ const BlogPage = () => {
                         <h1 className='font-medium text-2xl mt-14 mb-10'>Similar Blogs</h1>
                         {
                             similarBlog && similarBlog.map((blog, i) =>{
+                                console.log(blog)
                                 let {author : {personal_info}} = blog;
                                 return <AnimationWrapper key={i} transition={{duration: 1, delay: i * 0.08}}>
                                     <BlogPostCard content={blog} author={personal_info}/>

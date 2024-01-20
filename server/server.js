@@ -11,6 +11,7 @@ import serviceAccountKey from './react-blogging-52b70-firebase-adminsdk-8kfmz-93
 import { ErrorThrow } from './utils/error.js'
 import BlogRouter from './routes/blogRoutes.js'
 import userRouter from './routes/userRoutes.js'
+import notificationRouter from './routes/notification.js'
 
 
 
@@ -29,7 +30,7 @@ cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
+});
 
 
 mongoose.connect(process.env.DB_CONNECTION, {
@@ -45,10 +46,11 @@ mongoose.connect(process.env.DB_CONNECTION, {
 server.get('/', (req, res) =>{
     res.send("Hello from the server side")
 })
+
+
 server.post('/upload-image' , async (req, res)=>{
     try{
         const {image} = req.files;
-        console.log(req.files)
         await cloudinary.uploader.upload(image.tempFilePath, (err, result)=>{
             if(err){
                 return res.status(500).json({error: err})
@@ -67,6 +69,7 @@ server.post('/upload-image' , async (req, res)=>{
 
 server.use(userRouter)
 server.use(BlogRouter)
+server.use(notificationRouter)
 
 
 server.use(ErrorThrow)

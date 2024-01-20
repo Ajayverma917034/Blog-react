@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import logo from '../imgs/logo.png'
+import lightLogo from '../imgs/logo-light.png'
+import darkLogo from '../imgs/logo-dark.png'
 import AnimationWrapper from '../common/page-animation'
-import defaultBanner from '../imgs/blog banner.png'
+import lightBanner from '../imgs/blog banner light.png'
+import darkBanner from '../imgs/blog banner dark.png'
 
 import {Toaster ,toast} from 'react-hot-toast'
 import { EditorContext } from '../pages/editor.pages'
@@ -10,14 +12,15 @@ import EditorJS from '@editorjs/editorjs'
 import { tools } from './tools.component'
 import { uploadImage } from '../common/cloudinary'
 import axios from 'axios'
-import { UserContext } from '../App'
+import { ThemeContext, UserContext } from '../App'
 const BlogEditor = () => {
     
     const navigate = useNavigate()
     let {blog_id} = useParams()
     let {userAuth: {access_token}} = useContext(UserContext)
-    let blogContextData = useContext(EditorContext)
-    let {blog, blog: {title, banner, content, tags, des}, setBlog, textEditor, setTextEditor, setEditorState} = blogContextData
+
+    let {theme} = useContext(ThemeContext)
+    let {blog, blog: {title, banner, content, tags, des}, setBlog, textEditor, setTextEditor, setEditorState} = useContext(EditorContext)
 
     useEffect(()=>{
         if(!textEditor.isReady){
@@ -29,21 +32,6 @@ const BlogEditor = () => {
             }))
         }
     },[])
-    // const handleBannerUpload = (image) =>{
-    //     console.log(image)
-    //     if(image){
-    //         let ladingTast = toast.loading('Uploading...')
-    //         uploadImage(image).then((url) =>{
-    //             toast.dismiss(ladingTast)
-    //             toast.success("Uploaded Successfully")
-    //             setBlog({...blog, banner: url})
-    //         }).catch(err => {
-    //             toast.dismiss(ladingTast)
-    //             toast.error(err)
-
-    //         })
-    //     }
-    // }
     const handleChangeBanner = (e) =>{
         if(e.target.files[0]){
             let ladingTast = toast.loading('Uploading...')
@@ -71,7 +59,7 @@ const BlogEditor = () => {
     }
     const handleError = (e) =>{
         let img = e.target
-        img.src = defaultBanner
+        img.src = theme == 'light' ? lightBanner : darkBanner;
     }
     const handlePublishEvent = () =>{
         if(!banner.length){
@@ -118,7 +106,7 @@ const BlogEditor = () => {
                     toast.dismiss(loadingToast)
                     toast.success("Saved successfully");
                     setTimeout(() => {
-                      navigate('/')
+                      navigate('/dashboard/blogs?tab=draft')
                     }, 5000);
                   }).catch(({response}) =>{
                     e.target.classList.remove('disable');
@@ -132,7 +120,7 @@ const BlogEditor = () => {
     <>
         <nav className='navbar'>
             <Link to={'/'} className='flex-none w-10'>
-                <img src={logo} alt="Logo" />
+                <img src={theme == 'dark' ? lightLogo : darkLogo} alt="Logo" />
             </Link>
             <p className='max-md:hidden text-black line-clamp-1 w-full'>
                 {title.length ? title : "New Blog"}
@@ -157,7 +145,7 @@ const BlogEditor = () => {
                     <textarea 
                         defaultValue={title}
                         placeholder='Blog Title'
-                        className='text-4xl font-medium w-full h-20 outline-none resize-none mt-10 leading-tight placeholder:opacity-40 '
+                        className='text-4xl font-medium w-full h-20 outline-none resize-none mt-10 leading-tight placeholder:opacity-40 bg-white'
                         onKeyDown={handleTitleKeyDown}
                         onChange={handleTitleChange}
                     >
